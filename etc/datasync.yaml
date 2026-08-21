@@ -1,0 +1,14 @@
+Name: datasync
+Host: 0.0.0.0
+Port: 8888
+
+# 源数据库
+SourceDB:
+  Dsn: "root:123456@tcp(127.0.0.1:53306)/source_db?charset=utf8mb4&parseTime=True&loc=Local"
+# 目标数据库
+TargetDB:
+  Dsn: "root:123456@tcp(127.0.0.1:53306)/target_db?charset=utf8mb4&parseTime=True&loc=Local"
+
+Sync:
+  Interval: 5000
+  LastSyncId: 0
