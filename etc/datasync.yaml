@@ -9,6 +9,10 @@ SourceDB:
 TargetDB:
   Dsn: "root:123456@tcp(127.0.0.1:53306)/target_db?charset=utf8mb4&parseTime=True&loc=Local"
 
+RedisConfig:
+  Host: "127.0.0.1:6379"
+  Type: "node"
+
 Sync:
   Interval: 5000
   LastSyncId: 0

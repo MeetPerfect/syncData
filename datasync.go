@@ -10,7 +10,9 @@ import (
 
 	"datasync-demo/internal/config"
 	"datasync-demo/service"
+
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/stores/redis"
 )
 
 var configFile = flag.String("f", "etc/datasync.yaml", "config file")
@@ -20,11 +22,12 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-
+	rds := redis.MustNewRedis(c.RedisConfig)
 	// 初始化同步服务
 	syncSvc, err := service.NewSyncService(
 		c.SourceDB.Dsn,
 		c.TargetDB.Dsn,
+		rds,
 		c.Sync.Interval,
 		c.Sync.LastSyncId,
 	)
