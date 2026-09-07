@@ -1,15 +1,19 @@
 package model
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
 type TargetUser struct {
-	Id         int64  `gorm:"column:id"`
-	Name       string `gorm:"column:name"`
-	Phone      string `gorm:"column:phone"`
-	UpdateTime string `gorm:"column:update_time"`
+	Id         int64      `gorm:"column:id"`
+	Name       string     `gorm:"column:name"`
+	Phone      string     `gorm:"column:phone"`
+	UpdateTime time.Time  `gorm:"column:update_time"`
+	DeleteTime *time.Time `gorm:"column:delete_time"`
+	IsDeleted  int8       `gorm:"column:is_deleted"`
 }
 
 func (TargetUser) TableName() string {
@@ -23,6 +27,8 @@ func UpsertTargetUser(db *gorm.DB, data *SourceUser) error {
 		Name:       data.Name,
 		Phone:      data.Phone,
 		UpdateTime: data.UpdateTime,
+		DeleteTime: data.DeleteTime,
+		IsDeleted:  data.IsDeleted,
 	}
 	return db.Clauses(
 		clause.OnConflict{
@@ -35,12 +41,15 @@ func UpsertTargetUser(db *gorm.DB, data *SourceUser) error {
 func BatchUpsertTargetUser(db *gorm.DB, list []SourceUser) error {
 	var targetList []TargetUser
 	for _, item := range list {
-		targetList = append(targetList, TargetUser{
+		targetUser := TargetUser{
 			Id:         item.Id,
 			Name:       item.Name,
 			Phone:      item.Phone,
 			UpdateTime: item.UpdateTime,
-		})
+			DeleteTime: item.DeleteTime,
+			IsDeleted:  item.IsDeleted,
+		}
+		targetList = append(targetList, targetUser)
 	}
 
 	return db.Clauses(clause.OnConflict{
