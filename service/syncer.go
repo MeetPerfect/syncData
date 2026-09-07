@@ -54,7 +54,7 @@ func (s *SyncService) StartPoll(ctx context.Context) {
 func (s *SyncService) doSync() {
 	// 1.拉取增量
 	// list, err := model.ListSourceUser(s.sourceDB, s.lastSyncId)
-	list, err := model.ListSourceUserByTime(s.sourceDB, s.updateTime)
+	list, err := model.ListSourceUserByTime(s.sourceDB, s.updateTime, s.lastSyncId, 100)
 	if err != nil {
 		fmt.Printf("pull source data err: %v\n", err)
 		return
