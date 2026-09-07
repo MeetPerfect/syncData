@@ -27,8 +27,11 @@ func ListSourceUser(db *gorm.DB, lastId int64) ([]SourceUser, error) {
 }
 
 // 查询大于lastUpdate的增量数据
-func ListSourceUserByTime(db *gorm.DB, lastUpdate time.Time) ([]SourceUser, error) {
+func ListSourceUserByTime(db *gorm.DB, lastUpdate time.Time, lastId int64, pageSize int) ([]SourceUser, error) {
 	var list []SourceUser
-	err := db.Where("update_time > ?", lastUpdate).Order("update_time,id").Find(&list).Error
+	err := db.Where("update_time > ? OR (update_time = ? AND id > ?)", lastUpdate, lastUpdate, lastId).
+		Order("update_time,id").
+		Limit(pageSize).
+		Find(&list).Error
 	return list, err
 }
