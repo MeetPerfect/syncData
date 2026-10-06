@@ -27,11 +27,18 @@ func ListSourceUser(db *gorm.DB, lastId int64) ([]SourceUser, error) {
 }
 
 // 查询大于lastUpdate的增量数据
-func ListSourceUserByTime(db *gorm.DB, lastUpdate time.Time, lastId int64, batchSize int) ([]SourceUser, error) {
+func ListSourceUserByTime(db *gorm.DB, lastUpdate time.Time, lastId int64, batchSize int, fullsync bool) ([]SourceUser, error) {
 	var list []SourceUser
-	err := db.Where("update_time > ? OR (update_time = ? AND id > ?)", lastUpdate, lastUpdate, lastId).
-		Order("update_time,id").
-		Limit(batchSize).
-		Find(&list).Error
+	tx := db.Model(&SourceUser{})
+	if fullsync {
+		// 全量同步，忽略lastUpdate和lastId
+		tx = tx.Where("id > ?", lastId).Order("id ASC").Limit(batchSize)
+	} else {
+		// 增量同步，按update_time和id进行分页查询
+		tx = tx.Where("update_time > ? OR (update_time = ? AND id > ?)", lastUpdate, lastUpdate, lastId).
+			Order("update_time,id").
+			Limit(batchSize)
+	}
+	err := tx.Find(&list).Error
 	return list, err
 }
